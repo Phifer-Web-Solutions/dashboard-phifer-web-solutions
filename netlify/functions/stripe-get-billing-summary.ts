@@ -69,29 +69,36 @@ export async function handler(event: { queryStringParameters: Record<string, str
       return { statusCode: 404, body: JSON.stringify({ error: 'Customer not found' }) };
     }
 
-    // Fetch active subscriptions
+    // Fetch active subscriptions (expand limited to 3 levels)
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: 'all',
       limit: 1,
-      expand: ['data.default_payment_method', 'data.items.data.price.product'],
+      expand: ['data.default_payment_method'],
     });
 
     let subscription: BillingSummary['subscription'] = null;
     if (subscriptions.data.length > 0) {
       const sub = subscriptions.data[0];
       const item = sub.items.data[0];
-      const product = item?.price?.product;
-      const productName = typeof product === 'object' && product && 'name' in product ? product.name : 'Subscription';
+      // Fetch product name separately to avoid deep expand
+      let productName = 'Subscription';
+      if (item?.price?.product) {
+        const productId = typeof item.price.product === 'string' ? item.price.product : item.price.product.id;
+        try {
+          const product = await stripe.products.retrieve(productId);
+          productName = product.name;
+        } catch { /* fallback to default */ }
+      }
 
       subscription = {
         id: sub.id,
         status: sub.status,
-        planName: productName as string,
+        planName: productName,
         amount: item?.price?.unit_amount || 0,
         currency: item?.price?.currency || 'usd',
         interval: item?.price?.recurring?.interval || 'month',
-        nextBillingDate: sub.current_period_end,
+        nextBillingDate: (sub as any).current_period_end ?? null,
         cancelAtPeriodEnd: sub.cancel_at_period_end,
       };
     }
@@ -111,7 +118,7 @@ export async function handler(event: { queryStringParameters: Record<string, str
       description: inv.description,
       created: inv.created,
       dueDate: inv.due_date,
-      hostedInvoiceUrl: inv.hosted_invoice_url,
+      hostedInvoiceUrl: inv.hosted_invoice_url ?? null,
     }));
 
     // Fetch recent paid invoices
@@ -128,9 +135,9 @@ export async function handler(event: { queryStringParameters: Record<string, str
       currency: inv.currency,
       description: inv.description,
       created: inv.created,
-      paidAt: inv.status_transitions?.paid_at || null,
-      hostedInvoiceUrl: inv.hosted_invoice_url,
-      invoicePdf: inv.invoice_pdf,
+      paidAt: inv.status_transitions?.paid_at ?? null,
+      hostedInvoiceUrl: inv.hosted_invoice_url ?? null,
+      invoicePdf: inv.invoice_pdf ?? null,
     }));
 
     // Default payment method

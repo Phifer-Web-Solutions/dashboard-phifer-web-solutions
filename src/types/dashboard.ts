@@ -42,9 +42,30 @@ export interface AnalyticsConfig {
   simpleAnalyticsId?: string;
   /** GA4: measurement ID (e.g. "G-XXXXXXXXXX") */
   analyticsId?: string;
+  /** Dashboard routes filtered from public traffic view */
+  internalRoutes?: string[];
+  /** Goal page slug for visitor journey funnel (default: '/contact') */
+  conversionPage?: string;
+}
+
+export interface ContentKitSection {
+  id: string;
+  label: string;
+  description: string;
+  enabled: boolean;
+  required: boolean;
+}
+
+export interface ContentKitConfig {
+  enabled: boolean;
+  sections: ContentKitSection[];
+  maxPersonalityPicks?: number;
+  welcomeMessage?: string;
+  completionEmailNotify?: boolean;
 }
 
 export interface DashboardConfig {
+  clientId: string;
   clientName: string;
   clientDomain: string;
   clientEmail: string;
@@ -55,4 +76,5 @@ export interface DashboardConfig {
   contentEditors: ContentEditor[];
   billing?: BillingConfig;
   analytics?: AnalyticsConfig;
+  contentKit?: ContentKitConfig;
 }

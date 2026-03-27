@@ -10,6 +10,10 @@
   --color-text-secondary: #4b5563;
   --color-text-inverse: #ffffff;
   --color-border: #dae1e6;
+  --color-sidebar-bg: #052d38;
+  --color-sidebar-text: #e5e7eb;
+  --color-sidebar-hover: #084354;
+  --color-sidebar-active: #0c6179;
   --font-heading: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Inter', sans-serif;
   --border-radius: 0.5rem;
@@ -25,4 +29,8 @@
   --color-text-secondary: #d1d5db;
   --color-text-inverse: #111827;
   --color-border: #344556;
+  --color-sidebar-bg: #041e25;
+  --color-sidebar-text: #d1d5db;
+  --color-sidebar-hover: #063441;
+  --color-sidebar-active: #1399be;
 }
