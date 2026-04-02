@@ -35,10 +35,10 @@ onMounted(async () => {
   const ds = import.meta.env.VITE_SANITY_DATASET || 'production';
   if (!pid) return;
   try {
-    const q = encodeURIComponent('*[_type == "siteSettings"][0]{ "logoUrl": logo.asset->url }');
+    const q = encodeURIComponent('*[_type == "siteSettings"][0]{ "darkLogoUrl": darkLogo.asset->url, "logoUrl": logo.asset->url }');
     const res = await fetch(`https://${pid}.apicdn.sanity.io/v2024-01-01/data/query/${ds}?query=${q}`);
     const json = await res.json();
-    if (json.result?.logoUrl) sidebarLogo.value = json.result.logoUrl;
+    sidebarLogo.value = json.result?.darkLogoUrl || json.result?.logoUrl || '';
   } catch { /* fallback to initial */ }
 });
 
