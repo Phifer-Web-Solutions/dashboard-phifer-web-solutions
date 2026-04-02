@@ -11,7 +11,6 @@
   "dependencies": {
     "@auth0/auth0-vue": "^2.3.3",
     "@libsql/client": "^0.17.2",
-    "@libsql/linux-x64-gnu": "^0.5.29",
     "@sanity/client": "^7.3.0",
     "@unhead/vue": "^1.11.20",
     "@vueuse/core": "^12.7.0",

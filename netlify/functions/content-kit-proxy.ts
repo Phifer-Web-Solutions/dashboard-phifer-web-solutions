@@ -8,7 +8,7 @@
  *
  * Env: TURSO_DATABASE_URL, TURSO_AUTH_TOKEN
  */
-import { createClient } from '@libsql/client';
+import { createClient } from '@libsql/client/web';
 
 /** Map section IDs to their DB column names */
 const SECTION_COLUMNS: Record<string, string[]> = {
