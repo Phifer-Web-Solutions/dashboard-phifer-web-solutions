@@ -3,7 +3,7 @@
      build-tools/src/views/PreviewDashboardView.vue
      Do not edit the copy in pws-dashboard-template — it will be overwritten at scaffold time -->
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { useAuth0 } from '@auth0/auth0-vue';
 import {
@@ -28,6 +28,19 @@ const route = useRoute();
 const { user, logout } = useAuth0();
 const collapsed = ref(false);
 const darkMode = ref(false);
+const sidebarLogo = ref('');
+
+onMounted(async () => {
+  const pid = import.meta.env.VITE_SANITY_PROJECT_ID;
+  const ds = import.meta.env.VITE_SANITY_DATASET || 'production';
+  if (!pid) return;
+  try {
+    const q = encodeURIComponent('*[_type == "siteSettings"][0]{ "logoUrl": logo.asset->url }');
+    const res = await fetch(`https://${pid}.apicdn.sanity.io/v2024-01-01/data/query/${ds}?query=${q}`);
+    const json = await res.json();
+    if (json.result?.logoUrl) sidebarLogo.value = json.result.logoUrl;
+  } catch { /* fallback to initial */ }
+});
 
 function doLogout() {
   logout({ logoutParams: { returnTo: window.location.origin } });
@@ -59,7 +72,9 @@ const navItems: NavItem[] = [
   >
     <!-- Brand header -->
     <div class="sidebar__brand" :class="collapsed ? 'sidebar__brand--collapsed' : ''">
+      <img v-if="sidebarLogo" :src="sidebarLogo" :alt="config.clientName" class="sidebar__avatar-img" />
       <div
+        v-else
         class="sidebar__avatar"
         :style="{ backgroundColor: 'var(--color-sidebar-active, var(--color-primary))' }"
       >{{ config.clientName.charAt(0) }}</div>
@@ -181,6 +196,14 @@ const navItems: NavItem[] = [
 .sidebar__brand--collapsed {
   padding: 1rem 0.5rem;
   justify-content: center;
+}
+
+.sidebar__avatar-img {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .sidebar__avatar {
